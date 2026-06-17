@@ -7,12 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
     <style>
-        /* ---------- RESET & BASE ---------- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ---------- THEME VARIABLES ---------- */
         :root {
             --bg-primary: #0b0b1a;
             --bg-secondary: #111128;
@@ -30,6 +25,44 @@
             --radius-sm: 10px;
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --toast-bg: var(--bg-card);
+        }
+
+        /* Light theme (system preference or manual toggle) */
+        [data-theme="light"] {
+            --bg-primary: #f5f5fa;
+            --bg-secondary: #e8e8f0;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f0f0f8;
+            --text-primary: #1a1a2e;
+            --text-secondary: #3a3a5a;
+            --text-muted: #7a7a9a;
+            --border-color: #c0c0d0;
+            --shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+            --toast-bg: #ffffff;
+        }
+
+        /* Auto-detect system preference */
+        @media (prefers-color-scheme: light) {
+            :root:not([data-theme="dark"]) {
+                --bg-primary: #f5f5fa;
+                --bg-secondary: #e8e8f0;
+                --bg-card: #ffffff;
+                --bg-card-hover: #f0f0f8;
+                --text-primary: #1a1a2e;
+                --text-secondary: #3a3a5a;
+                --text-muted: #7a7a9a;
+                --border-color: #c0c0d0;
+                --shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+                --toast-bg: #ffffff;
+            }
+        }
+
+        /* ---------- RESET & BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         html {
             scroll-behavior: smooth;
@@ -41,6 +74,7 @@
             min-height: 100vh;
             line-height: 1.6;
             overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
         }
         a {
             color: var(--gold);
@@ -140,15 +174,6 @@
                 transform: translateY(0);
             }
         }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
 
         /* ---------- BUTTONS ---------- */
         .btn {
@@ -228,7 +253,7 @@
         }
         .card-gold {
             border-color: var(--gold);
-            background: linear-gradient(145deg, #1a1a3e, #12122e);
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
         }
         .card-gold .card-title {
             color: var(--gold);
@@ -238,11 +263,12 @@
         .header {
             padding: 16px 0;
             border-bottom: 1px solid var(--border-color);
-            background: rgba(11, 11, 26, 0.85);
+            background: var(--bg-primary);
             backdrop-filter: blur(12px);
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: background 0.3s;
         }
         .header .logo {
             font-size: 24px;
@@ -304,6 +330,21 @@
             font-size: 24px;
             color: var(--text-primary);
             background: none;
+        }
+        .theme-toggle {
+            background: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .theme-toggle:hover {
+            color: var(--gold);
+            border-color: var(--gold);
         }
 
         /* ---------- HERO ---------- */
@@ -789,7 +830,7 @@
         .toast {
             padding: 14px 20px;
             border-radius: var(--radius-sm);
-            background: var(--bg-card);
+            background: var(--toast-bg);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             font-size: 14px;
@@ -1025,7 +1066,6 @@
         .withdraw-warning strong {
             color: var(--text-primary);
         }
-        /* investment confirmation pill */
         .invest-confirm-box {
             background: var(--bg-primary);
             border-radius: var(--radius-sm);
@@ -1042,6 +1082,51 @@
         .invest-confirm-box .label {
             font-size: 13px;
             color: var(--text-muted);
+        }
+        /* referral list */
+        .referral-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        .referral-item .status-badge {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .referral-item .status-badge.pending {
+            background: #f39c12;
+            color: #0b0b1a;
+        }
+        .referral-item .status-badge.active {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        /* Share button style */
+        .share-btn {
+            background: #25d366;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .share-btn:hover {
+            background: #1ebe5a;
+        }
+        .logout-nav-btn {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+        }
+        .logout-nav-btn:hover {
+            color: #e74c3c !important;
         }
     </style>
 </head>
@@ -1104,6 +1189,7 @@
                 <a href="#" data-view="deposit" class="hidden" id="navDeposit">Deposit</a>
                 <a href="#" data-view="withdraw" class="hidden" id="navWithdraw">Withdraw</a>
                 <a href="#" data-view="invest" class="hidden" id="navInvest">Invest</a>
+                <a href="#" data-view="referral" class="hidden" id="navReferral">Referral</a>
                 <span id="authLinks">
                     <a href="#" data-view="login" class="btn btn-outline btn-sm">Login</a>
                     <a href="#" data-view="register" class="btn btn-gold btn-sm">Register</a>
@@ -1112,11 +1198,12 @@
                     <span class="user-badge">
                         <span class="avatar" id="userAvatar">U</span>
                         <span id="userNameShort">User</span>
-                        <a href="#" id="logoutBtn" style="color:var(--text-muted);font-size:13px;margin-left:4px;">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </a>
                     </span>
                 </span>
+                <a href="#" id="logoutNavBtn" class="hidden logout-nav-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
             </nav>
             <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
         </div>
@@ -1153,7 +1240,7 @@
             BANK_ACCOUNT_NAME: 'Petroflow Investments Ltd',
             CURRENCY: '₦',
             WITHDRAW_LIMIT: 20000,
-            REFERRAL_BONUS_PERCENT: 5,
+            REFERRAL_BONUS_AMOUNT: 500,
         };
 
         // ============================================================
@@ -1362,6 +1449,17 @@
                 state.deposits = data.deposits || [];
                 state.withdrawals = data.withdrawals || [];
                 state.investments = data.investments || [];
+                state.users.forEach(u => {
+                    if (!Array.isArray(u.referrals)) {
+                        u.referrals = [];
+                    }
+                    if (u.referrals.length > 0 && typeof u.referrals[0] === 'string') {
+                        u.referrals = u.referrals.map(id => ({ userId: id, status: 'pending', joinedAt: new Date()
+                                .toISOString() }));
+                    }
+                    if (!u.customReferralCode) u.customReferralCode = u.referralCode || generateReferralCode();
+                    if (!u.firstDepositDone) u.firstDepositDone = false;
+                });
                 return data;
             } catch (err) {
                 console.error('Load data error:', err);
@@ -1395,7 +1493,7 @@
         }
 
         function findUserByReferralCode(code) {
-            return state.users.find(u => u.referralCode === code);
+            return state.users.find(u => u.customReferralCode && u.customReferralCode.toUpperCase() === code.toUpperCase());
         }
 
         async function registerUser(fullName, email, phone, password, referralCode) {
@@ -1423,14 +1521,21 @@
                 totalInvested: 0,
                 totalReturns: 0,
                 referralCode: generateReferralCode(),
+                customReferralCode: null,
                 referredBy: referredBy,
                 referrals: [],
                 referralBonus: 0,
+                firstDepositDone: false,
                 createdAt: new Date().toISOString(),
             };
 
             if (referrer) {
-                referrer.referrals.push(user.id);
+                const referralEntry = {
+                    userId: user.id,
+                    status: 'pending',
+                    joinedAt: new Date().toISOString(),
+                };
+                referrer.referrals.push(referralEntry);
                 const idx = state.users.findIndex(u => u.id === referrer.id);
                 if (idx !== -1) state.users[idx] = referrer;
             }
@@ -1482,15 +1587,26 @@
 
             user.balance = (user.balance || 0) + deposit.amount;
 
-            if (user.referredBy) {
-                const referrer = findUserById(user.referredBy);
-                if (referrer) {
-                    const bonus = deposit.amount * (CONFIG.REFERRAL_BONUS_PERCENT / 100);
-                    referrer.balance = (referrer.balance || 0) + bonus;
-                    referrer.referralBonus = (referrer.referralBonus || 0) + bonus;
-                    const idx = state.users.findIndex(u => u.id === referrer.id);
-                    if (idx !== -1) state.users[idx] = referrer;
-                    showToast(`Referrer got ${formatCurrency(bonus)} bonus!`, 'success');
+            if (!user.firstDepositDone) {
+                user.firstDepositDone = true;
+                user.balance += CONFIG.REFERRAL_BONUS_AMOUNT;
+                user.referralBonus = (user.referralBonus || 0) + CONFIG.REFERRAL_BONUS_AMOUNT;
+                showToast(`🎉 You got ₦${CONFIG.REFERRAL_BONUS_AMOUNT} first deposit bonus!`, 'success');
+
+                if (user.referredBy) {
+                    const referrer = findUserById(user.referredBy);
+                    if (referrer) {
+                        const refEntry = referrer.referrals.find(r => r.userId === user.id);
+                        if (refEntry && refEntry.status === 'pending') {
+                            refEntry.status = 'active';
+                            refEntry.depositedAt = new Date().toISOString();
+                        }
+                        referrer.balance = (referrer.balance || 0) + CONFIG.REFERRAL_BONUS_AMOUNT;
+                        referrer.referralBonus = (referrer.referralBonus || 0) + CONFIG.REFERRAL_BONUS_AMOUNT;
+                        showToast(`Referrer ${referrer.fullName} got ₦${CONFIG.REFERRAL_BONUS_AMOUNT} bonus!`, 'success');
+                        const idx = state.users.findIndex(u => u.id === referrer.id);
+                        if (idx !== -1) state.users[idx] = referrer;
+                    }
                 }
             }
 
@@ -1508,7 +1624,7 @@
         }
 
         // ============================================================
-        //  INVESTMENTS (fixed amount per plan, from wallet)
+        //  INVESTMENTS
         // ============================================================
         async function createInvestment(userId, planId) {
             const user = findUserById(userId);
@@ -1521,7 +1637,6 @@
                 throw new Error(`Insufficient balance. You need ${formatCurrency(amount)} but have ${formatCurrency(user.balance)}`);
             }
 
-            // Deduct from balance
             user.balance = (user.balance || 0) - amount;
             user.totalInvested = (user.totalInvested || 0) + amount;
 
@@ -1550,8 +1665,9 @@
             const user = findUserById(userId);
             if (!user) throw new Error('User not found');
 
-            if (!user.referrals || user.referrals.length === 0) {
-                throw new Error('You need to refer at least one user to withdraw. Share your referral code!');
+            const activeReferrals = user.referrals ? user.referrals.filter(r => r.status === 'active') : [];
+            if (activeReferrals.length === 0) {
+                throw new Error('You need at least one active referral (someone who has deposited) to withdraw. Share your referral code!');
             }
 
             if (amount > CONFIG.WITHDRAW_LIMIT) {
@@ -1600,6 +1716,56 @@
         }
 
         // ============================================================
+        //  CUSTOM REFERRAL CODE
+        // ============================================================
+        async function setCustomReferralCode(userId, newCode) {
+            const user = findUserById(userId);
+            if (!user) throw new Error('User not found');
+            if (user.customReferralCode) throw new Error('You already have a custom referral code. It cannot be changed.');
+            const existing = state.users.find(u => u.customReferralCode && u.customReferralCode.toUpperCase() === newCode
+                .toUpperCase());
+            if (existing) throw new Error('This referral code is already taken. Please choose another.');
+            if (newCode.length < 3) throw new Error('Referral code must be at least 3 characters.');
+            if (!/^[a-zA-Z0-9]+$/.test(newCode)) throw new Error('Referral code can only contain letters and numbers.');
+            user.customReferralCode = newCode.toUpperCase();
+            await saveAllData();
+            return user;
+        }
+
+        // ============================================================
+        //  SHARE FUNCTION
+        // ============================================================
+        function shareReferral() {
+            const u = state.currentUser;
+            if (!u) return;
+            const code = u.customReferralCode || u.referralCode;
+            const link = `${window.location.origin}${window.location.pathname}?ref=${code}`;
+            const message =
+                `🚀 Invest in Oil & Gas with Petroflow! Use my referral link to get started and earn a ₦${CONFIG.REFERRAL_BONUS_AMOUNT} bonus on your first deposit. Join now: ${link}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Petroflow - Invest in Oil & Gas',
+                    text: message,
+                    url: link,
+                }).catch(() => {});
+            } else {
+                // fallback: copy message with link
+                navigator.clipboard.writeText(message).then(() => {
+                    showToast('Referral link with message copied to clipboard!', 'success');
+                }).catch(() => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = message;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    textarea.remove();
+                    showToast('Referral link with message copied!', 'success');
+                });
+            }
+        }
+
+        // ============================================================
         //  INVESTMENT RETURNS
         // ============================================================
         function calculateReturns() {
@@ -1638,6 +1804,35 @@
         }
 
         // ============================================================
+        //  THEME
+        // ============================================================
+        function getPreferredTheme() {
+            const stored = localStorage.getItem('petroflow_theme');
+            if (stored) return stored;
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                return 'light';
+            }
+            return 'dark';
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('petroflow_theme', theme);
+            const icon = document.getElementById('themeIcon');
+            if (theme === 'light') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+        }
+
+        // ============================================================
         //  UI RENDER FUNCTIONS
         // ============================================================
         function renderView(view, data) {
@@ -1668,6 +1863,9 @@
                     break;
                 case 'invest':
                     html = renderInvest();
+                    break;
+                case 'referral':
+                    html = renderReferral();
                     break;
                 default:
                     html = renderHome();
@@ -1718,7 +1916,7 @@
                 <div class="card text-center">
                   <i class="fas fa-users" style="font-size:36px;color:var(--gold);margin-bottom:10px;"></i>
                   <h3>Refer & Earn</h3>
-                  <p style="color:var(--text-secondary);font-size:14px;">Refer friends and earn ${CONFIG.REFERRAL_BONUS_PERCENT}% bonus on their first deposit.</p>
+                  <p style="color:var(--text-secondary);font-size:14px;">Refer friends and earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} bonus on their first deposit.</p>
                 </div>
               </div>
             </section>
@@ -1803,7 +2001,7 @@
                   <div class="form-group">
                     <label>Referral Code (optional)</label>
                     <input type="text" id="regReferral" placeholder="Enter referral code if you have one" />
-                    <span style="font-size:11px;color:var(--text-muted);">Refer and earn ${CONFIG.REFERRAL_BONUS_PERCENT}% bonus on first deposits!</span>
+                    <span style="font-size:11px;color:var(--text-muted);">Refer and earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} bonus on first deposit!</span>
                   </div>
                   <button type="submit" class="btn btn-gold btn-block" id="registerBtn">Create Account</button>
                 </form>
@@ -1830,11 +2028,10 @@
             const totalReturns = userInvestments
                 .filter(inv => inv.status === 'completed')
                 .reduce((sum, inv) => sum + (inv.returns || 0), 0);
-            const activeAmount = activeInvestments.reduce((sum, inv) => sum + inv.amount, 0);
             const pendingReturns = activeInvestments.reduce((sum, inv) => sum + (inv.returns || 0), 0);
 
             const referralCount = u.referrals ? u.referrals.length : 0;
-            const referralLink = `${window.location.origin}${window.location.pathname}?ref=${u.referralCode}`;
+            const activeReferralCount = u.referrals ? u.referrals.filter(r => r.status === 'active').length : 0;
 
             return `
             <div class="fade-in">
@@ -1894,18 +2091,20 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                   <div>
                     <h4 style="font-size:16px;"><i class="fas fa-gift text-gold"></i> Refer & Earn</h4>
-                    <p style="font-size:13px;color:var(--text-muted);">Share your code and earn ${CONFIG.REFERRAL_BONUS_PERCENT}% bonus on referrals' first deposit</p>
+                    <p style="font-size:13px;color:var(--text-muted);">Share your code and earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} when they make their first deposit.</p>
                   </div>
                   <div class="referral-stats">
                     <span>👥 <strong>${referralCount}</strong> referral${referralCount !== 1 ? 's' : ''}</span>
+                    <span>✅ <strong>${activeReferralCount}</strong> active</span>
                     <span>💰 <strong>${formatCurrency(u.referralBonus || 0)}</strong> bonus earned</span>
                   </div>
                 </div>
                 <div class="referral-box" style="margin-top:12px;">
-                  <span class="code">${u.referralCode}</span>
-                  <div style="display:flex;gap:8px;">
+                  <span class="code">${u.customReferralCode || u.referralCode}</span>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button class="copy-btn" id="copyReferralBtn"><i class="fas fa-copy"></i> Copy Code</button>
                     <button class="copy-btn" id="copyReferralLinkBtn"><i class="fas fa-link"></i> Copy Link</button>
+                    <button class="share-btn" id="shareReferralBtn"><i class="fas fa-share-alt"></i> Share</button>
                   </div>
                 </div>
               </div>
@@ -1999,7 +2198,7 @@
         }
 
         // ============================================================
-        //  PLANS (all plans, fixed amounts)
+        //  PLANS
         // ============================================================
         function renderPlans() {
             const isLoggedIn = !!state.currentUser;
@@ -2087,7 +2286,8 @@
         function renderWithdraw() {
             if (!state.currentUser) return renderLogin();
             const u = state.currentUser;
-            const hasReferral = u.referrals && u.referrals.length > 0;
+            const activeReferrals = u.referrals ? u.referrals.filter(r => r.status === 'active') : [];
+            const hasActiveReferral = activeReferrals.length > 0;
 
             return `
             <div class="fade-in" style="max-width:480px;margin:20px auto;">
@@ -2096,15 +2296,15 @@
                 <p style="color:var(--text-secondary);font-size:14px;margin-bottom:6px;">Available balance: <strong class="text-gold">${formatCurrency(u.balance || 0)}</strong></p>
                 <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Min: ₦100 • Max: ${formatCurrency(CONFIG.WITHDRAW_LIMIT)}</p>
 
-                ${!hasReferral ? `
+                ${!hasActiveReferral ? `
                   <div class="withdraw-warning">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <strong>Referral Required:</strong> You need to refer at least <strong>one user</strong> to withdraw funds.
-                    <br /><span style="font-size:12px;">Share your referral code from the dashboard to start referring.</span>
+                    <strong>Active Referral Required:</strong> You need at least <strong>one active referral</strong> (someone who has deposited) to withdraw.
+                    <br /><span style="font-size:12px;">Share your referral code and wait for them to make their first deposit.</span>
                   </div>
                 ` : `
                   <div style="background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
-                    <i class="fas fa-check-circle" style="color:#27ae60;"></i> You have <strong>${u.referrals.length}</strong> referral(s) — you're eligible to withdraw!
+                    <i class="fas fa-check-circle" style="color:#27ae60;"></i> You have <strong>${activeReferrals.length}</strong> active referral(s) — you're eligible to withdraw!
                   </div>
                 `}
 
@@ -2125,8 +2325,8 @@
                     <label>Account Name</label>
                     <input type="text" id="withdrawAccountName" placeholder="Enter account holder name" required />
                   </div>
-                  <button type="submit" class="btn btn-gold btn-block" id="withdrawBtn" ${!hasReferral ? 'disabled' : ''}>
-                    ${!hasReferral ? 'Refer a user to withdraw' : 'Request Withdrawal'}
+                  <button type="submit" class="btn btn-gold btn-block" id="withdrawBtn" ${!hasActiveReferral ? 'disabled' : ''}>
+                    ${!hasActiveReferral ? 'Need active referral to withdraw' : 'Request Withdrawal'}
                   </button>
                 </form>
                 <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px;">
@@ -2138,7 +2338,7 @@
         }
 
         // ============================================================
-        //  INVEST — fixed plan amount, no amount input
+        //  INVEST
         // ============================================================
         function renderInvest() {
             if (!state.currentUser) return renderLogin();
@@ -2212,17 +2412,91 @@
         }
 
         // ============================================================
+        //  REFERRAL
+        // ============================================================
+        function renderReferral() {
+            if (!state.currentUser) return renderLogin();
+            const u = state.currentUser;
+
+            const hasCustomCode = !!u.customReferralCode;
+            const referralCode = u.customReferralCode || u.referralCode;
+
+            const referrals = u.referrals || [];
+            const pending = referrals.filter(r => r.status === 'pending');
+            const active = referrals.filter(r => r.status === 'active');
+
+            return `
+            <div class="fade-in" style="max-width:650px;margin:20px auto;">
+              <div class="card card-gold">
+                <h2 style="margin-bottom:4px;"><i class="fas fa-users text-gold"></i> Referral Center</h2>
+                <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">Share your code, earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} when they deposit. You need an active referral to withdraw.</p>
+
+                ${!hasCustomCode ? `
+                  <div style="background:var(--bg-primary);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;">
+                    <h4 style="font-size:15px;margin-bottom:8px;">Set Your Custom Referral Code</h4>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Choose a unique code (letters & numbers, min 3 chars).</p>
+                    <form id="setReferralCodeForm" style="display:flex;gap:10px;flex-wrap:wrap;">
+                      <input type="text" id="newReferralCode" placeholder="e.g. PETRO123" style="flex:1;min-width:150px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);" />
+                      <button type="submit" class="btn btn-gold btn-sm">Set Code</button>
+                    </form>
+                  </div>
+                ` : `
+                  <div class="referral-box" style="margin-bottom:16px;">
+                    <span class="code">${referralCode}</span>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                      <button class="copy-btn" id="copyReferralBtn"><i class="fas fa-copy"></i> Copy Code</button>
+                      <button class="copy-btn" id="copyReferralLinkBtn"><i class="fas fa-link"></i> Copy Link</button>
+                      <button class="share-btn" id="shareReferralBtn"><i class="fas fa-share-alt"></i> Share</button>
+                    </div>
+                  </div>
+                `}
+
+                <div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap;">
+                  <span><strong>Total referrals:</strong> ${referrals.length}</span>
+                  <span><strong>Pending:</strong> ${pending.length}</span>
+                  <span><strong>Active:</strong> ${active.length}</span>
+                  <span><strong>Bonus earned:</strong> ${formatCurrency(u.referralBonus || 0)}</span>
+                </div>
+
+                <h4 style="font-size:16px;margin-bottom:10px;">Your Referrals</h4>
+                ${referrals.length === 0 ? `
+                  <div class="card" style="text-align:center;padding:20px;color:var(--text-muted);">
+                    <i class="fas fa-user-plus" style="font-size:28px;opacity:0.3;margin-bottom:8px;"></i>
+                    <p>No referrals yet. Share your code!</p>
+                  </div>
+                ` : `
+                  ${referrals.map(ref => {
+                    const referredUser = findUserById(ref.userId);
+                    return `
+                      <div class="referral-item">
+                        <span>${referredUser ? referredUser.fullName : 'Unknown'}</span>
+                        <span>
+                          <span class="status-badge ${ref.status}">${ref.status}</span>
+                          ${ref.status === 'active' ? `<i class="fas fa-check-circle" style="color:#27ae60;margin-left:6px;"></i>` : `<i class="fas fa-clock" style="color:#f39c12;margin-left:6px;"></i>`}
+                        </span>
+                      </div>
+                    `;
+                  }).join('')}
+                `}
+              </div>
+            </div>
+          `;
+        }
+
+        // ============================================================
         //  NAVIGATION
         // ============================================================
         function updateNav() {
             const isLoggedIn = !!state.currentUser;
             document.getElementById('authLinks').style.display = isLoggedIn ? 'none' : 'flex';
             document.getElementById('userBadge').style.display = isLoggedIn ? 'flex' : 'none';
+            document.getElementById('logoutNavBtn').style.display = isLoggedIn ? 'inline-block' : 'none';
             document.getElementById('navDashboard').style.display = isLoggedIn ? 'inline-block' : 'none';
             document.getElementById('navPlans').style.display = 'inline-block';
             document.getElementById('navDeposit').style.display = isLoggedIn ? 'inline-block' : 'none';
             document.getElementById('navWithdraw').style.display = isLoggedIn ? 'inline-block' : 'none';
             document.getElementById('navInvest').style.display = isLoggedIn ? 'inline-block' : 'none';
+            document.getElementById('navReferral').style.display = isLoggedIn ? 'inline-block' : 'none';
 
             if (isLoggedIn && state.currentUser) {
                 document.getElementById('userAvatar').textContent = getInitials(state.currentUser.fullName);
@@ -2248,8 +2522,8 @@
                         renderView('login');
                         return;
                     }
-                    if ((viewName === 'deposit' || viewName === 'withdraw' || viewName === 'invest') && !state
-                        .currentUser) {
+                    if ((viewName === 'deposit' || viewName === 'withdraw' || viewName === 'invest' || viewName ===
+                            'referral') && !state.currentUser) {
                         showToast('Please login first', 'warning');
                         renderView('login');
                         return;
@@ -2271,11 +2545,14 @@
                 document.getElementById('navLinks').classList.toggle('open');
             });
 
-            // Logout
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            // Logout via nav button
+            document.getElementById('logoutNavBtn').addEventListener('click', (e) => {
                 e.preventDefault();
                 handleLogout();
             });
+
+            // Theme
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
             // Admin
             document.getElementById('adminToggle').addEventListener('click', toggleAdminPanel);
@@ -2311,36 +2588,67 @@
                 });
             });
 
-            // Copy referral
-            document.getElementById('copyReferralBtn')?.addEventListener('click', () => {
-                const code = state.currentUser?.referralCode || '';
-                navigator.clipboard.writeText(code).then(() => {
-                    showToast('Referral code copied!', 'success');
-                }).catch(() => {
-                    const ta = document.createElement('textarea');
-                    ta.value = code;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    ta.remove();
-                    showToast('Referral code copied!', 'success');
+            // Copy referral & share buttons (delegated)
+            document.querySelectorAll('#copyReferralBtn, #copyReferralLinkBtn, #shareReferralBtn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.id;
+                    if (id === 'shareReferralBtn') {
+                        shareReferral();
+                        return;
+                    }
+                    const code = state.currentUser?.customReferralCode || state.currentUser?.referralCode ||
+                        '';
+                    if (id === 'copyReferralLinkBtn') {
+                        const link =
+                            `${window.location.origin}${window.location.pathname}?ref=${code}`;
+                        navigator.clipboard.writeText(link).then(() => {
+                            showToast('Referral link copied!', 'success');
+                        }).catch(() => {
+                            const ta = document.createElement('textarea');
+                            ta.value = link;
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand('copy');
+                            ta.remove();
+                            showToast('Referral link copied!', 'success');
+                        });
+                    } else {
+                        navigator.clipboard.writeText(code).then(() => {
+                            showToast('Referral code copied!', 'success');
+                        }).catch(() => {
+                            const ta = document.createElement('textarea');
+                            ta.value = code;
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand('copy');
+                            ta.remove();
+                            showToast('Referral code copied!', 'success');
+                        });
+                    }
                 });
             });
 
-            document.getElementById('copyReferralLinkBtn')?.addEventListener('click', () => {
-                const link =
-                    `${window.location.origin}${window.location.pathname}?ref=${state.currentUser?.referralCode || ''}`;
-                navigator.clipboard.writeText(link).then(() => {
-                    showToast('Referral link copied!', 'success');
-                }).catch(() => {
-                    const ta = document.createElement('textarea');
-                    ta.value = link;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    ta.remove();
-                    showToast('Referral link copied!', 'success');
-                });
+            // Set custom referral code
+            document.getElementById('setReferralCodeForm')?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = document.getElementById('newReferralCode');
+                const code = input.value.trim().toUpperCase();
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loader"></span>';
+                try {
+                    await setCustomReferralCode(state.currentUser.id, code);
+                    const updatedUser = findUserById(state.currentUser.id);
+                    state.currentUser = updatedUser;
+                    saveSession(updatedUser);
+                    showToast('Referral code set successfully!', 'success');
+                    renderView('referral');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+                btn.disabled = false;
+                btn.innerHTML = 'Set Code';
             });
 
             // Login
@@ -2449,11 +2757,6 @@
                         `Maximum withdrawal is ${formatCurrency(CONFIG.WITHDRAW_LIMIT)}`);
                     if (!bankName || !accountNumber || !accountName) throw new Error('Please fill all bank details');
 
-                    const u = state.currentUser;
-                    if (!u.referrals || u.referrals.length === 0) {
-                        throw new Error('You need to refer at least one user to withdraw. Share your referral code!');
-                    }
-
                     await createWithdrawal(state.currentUser.id, amount, bankName, accountNumber, accountName);
                     showToast(`Withdrawal of ${formatCurrency(amount)} submitted!`, 'success');
                     renderView('dashboard');
@@ -2464,7 +2767,7 @@
                 btn.innerHTML = 'Request Withdrawal';
             });
 
-            // Invest — fixed amount, no amount input
+            // Invest
             const investForm = document.getElementById('investForm');
             if (investForm) {
                 const planSelect = document.getElementById('investPlan');
@@ -2673,6 +2976,9 @@
         //  INIT
         // ============================================================
         async function init() {
+            const theme = getPreferredTheme();
+            setTheme(theme);
+
             try {
                 await loadAllData();
                 calculateReturns();
@@ -2724,4 +3030,4 @@
         init();
     </script>
 </body>
-</html>
+    </html>
