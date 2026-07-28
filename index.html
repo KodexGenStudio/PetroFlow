@@ -28,7 +28,6 @@
             --toast-bg: var(--bg-card);
         }
 
-        /* Light theme (system preference or manual toggle) */
         [data-theme="light"] {
             --bg-primary: #f5f5fa;
             --bg-secondary: #e8e8f0;
@@ -42,7 +41,6 @@
             --toast-bg: #ffffff;
         }
 
-        /* Auto-detect system preference */
         @media (prefers-color-scheme: light) {
             :root:not([data-theme="dark"]) {
                 --bg-primary: #f5f5fa;
@@ -105,7 +103,6 @@
             border-radius: 10px;
         }
 
-        /* ---------- UTILITY ---------- */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -1095,7 +1092,6 @@
             font-size: 13px;
             color: var(--text-muted);
         }
-        /* referral list */
         .referral-item {
             display: flex;
             justify-content: space-between;
@@ -1118,7 +1114,6 @@
             color: #fff;
         }
 
-        /* Share button style */
         .share-btn {
             background: #25d366;
             color: #fff;
@@ -1176,6 +1171,24 @@
             background: rgba(231, 76, 60, 0.1);
             border-color: #e74c3c;
             color: #e74c3c;
+        }
+
+        /* high-yield badge */
+        .high-yield {
+            background: #e74c3c;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-left: 6px;
+        }
+        .return-highlight {
+            color: #27ae60;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -1289,68 +1302,68 @@
             BANK_ACCOUNT_NAME: 'Usman Bello',
             CURRENCY: '₦',
             WITHDRAW_LIMIT: 20000,
-            REFERRAL_BONUS_AMOUNT: 500,
+            REFERRAL_BONUS_AMOUNT: 1000, // increased from 500
         };
 
         // ============================================================
-        //  INVESTMENT PLANS — FIXED AMOUNTS, PETROL/TECHNICAL NAMES
+        //  INVESTMENT PLANS — FIXED AMOUNTS, HIGHER RETURNS
         // ============================================================
         const PLANS = [{
             id: 'wellhead',
             name: 'Wellhead Starter',
             amount: 2000,
-            rate: 3,
+            rate: 20,
             duration: 30,
             desc: 'Entry-level exposure to upstream oil operations.',
-            features: ['₦2,000 fixed investment', '3% total return', '30-day term', 'Low risk']
+            features: ['₦2,000 fixed investment', '20% total return', '30-day term', 'Low risk']
         }, {
             id: 'pipeline',
             name: 'Pipeline Builder',
             amount: 5000,
-            rate: 5,
+            rate: 30,
             duration: 45,
             desc: 'Build your portfolio with midstream infrastructure.',
-            features: ['₦5,000 fixed investment', '5% total return', '45-day term', 'Low-medium risk']
+            features: ['₦5,000 fixed investment', '30% total return', '45-day term', 'Low-medium risk']
         }, {
             id: 'refinery',
             name: 'Refinery Pro',
             amount: 10000,
-            rate: 7,
+            rate: 40,
             duration: 60,
             desc: 'Value-added refining and processing returns.',
-            features: ['₦10,000 fixed investment', '7% total return', '60-day term', 'Medium risk']
+            features: ['₦10,000 fixed investment', '40% total return', '60-day term', 'Medium risk']
         }, {
             id: 'crude',
             name: 'Crude Master',
             amount: 50000,
-            rate: 10,
+            rate: 55,
             duration: 90,
             desc: 'Direct crude oil trading and hedging strategies.',
-            features: ['₦50,000 fixed investment', '10% total return', '90-day term', 'Balanced risk']
+            features: ['₦50,000 fixed investment', '55% total return', '90-day term', 'Balanced risk']
         }, {
             id: 'petro',
             name: 'Petro Giant',
             amount: 200000,
-            rate: 13,
+            rate: 70,
             duration: 120,
             desc: 'Large-scale petroleum asset participation.',
-            features: ['₦200,000 fixed investment', '13% total return', '120-day term', 'Growth focused']
+            features: ['₦200,000 fixed investment', '70% total return', '120-day term', 'Growth focused']
         }, {
             id: 'tycoon',
             name: 'Energy Tycoon',
             amount: 1000000,
-            rate: 18,
+            rate: 90,
             duration: 180,
             desc: 'High-yield energy sector portfolio management.',
-            features: ['₦1,000,000 fixed investment', '18% total return', '180-day term', 'High reward']
+            features: ['₦1,000,000 fixed investment', '90% total return', '180-day term', 'High reward']
         }, {
             id: 'baron',
             name: 'Oil Baron',
             amount: 5000000,
-            rate: 25,
+            rate: 120,
             duration: 365,
             desc: 'Premium institutional-grade oil & gas investment.',
-            features: ['₦5,000,000 fixed investment', '25% total return', '365-day term', 'Maximum growth']
+            features: ['₦5,000,000 fixed investment', '120% total return', '365-day term', 'Maximum growth']
         }];
 
         // ============================================================
@@ -1542,17 +1555,50 @@
         }
 
         function findUserByReferralCode(code) {
-            return state.users.find(u => u.customReferralCode && u.customReferralCode.toUpperCase() === code.toUpperCase());
+            if (!code) return null;
+            return state.users.find(u =>
+                u.customReferralCode && u.customReferralCode.toUpperCase() === code.toUpperCase().trim()
+            );
         }
 
-        async function registerUser(fullName, email, phone, password, referralCode) {
+        // Check if a referral code is already taken (by any user except optional excludeId)
+        function isReferralCodeTaken(code, excludeId = null) {
+            const trimmed = code.toUpperCase().trim();
+            return state.users.some(u =>
+                u.customReferralCode &&
+                u.customReferralCode.toUpperCase() === trimmed &&
+                (excludeId === null || u.id !== excludeId)
+            );
+        }
+
+        async function registerUser(fullName, email, phone, password, customCode, referrerCode) {
             if (findUserByEmail(email)) {
                 throw new Error('Email already registered');
             }
+
+            // Validate custom referral code if provided
+            let finalCustomCode = null;
+            if (customCode && customCode.trim().length > 0) {
+                const code = customCode.trim().toUpperCase();
+                if (code.length < 3) throw new Error('Custom referral code must be at least 3 characters.');
+                if (!/^[a-zA-Z0-9]+$/.test(code)) throw new Error('Referral code can only contain letters and numbers.');
+                if (isReferralCodeTaken(code)) throw new Error('This referral code is already taken. Please choose another.');
+                finalCustomCode = code;
+            } else {
+                // generate a random one if not provided
+                let generated;
+                let attempts = 0;
+                do {
+                    generated = generateReferralCode();
+                    attempts++;
+                } while (isReferralCodeTaken(generated) && attempts < 50);
+                finalCustomCode = generated;
+            }
+
             let referredBy = null;
             let referrer = null;
-            if (referralCode) {
-                referrer = findUserByReferralCode(referralCode.toUpperCase().trim());
+            if (referrerCode) {
+                referrer = findUserByReferralCode(referrerCode);
                 if (referrer) {
                     referredBy = referrer.id;
                 } else {
@@ -1569,8 +1615,8 @@
                 balance: 0,
                 totalInvested: 0,
                 totalReturns: 0,
-                referralCode: generateReferralCode(),
-                customReferralCode: null,
+                referralCode: generateReferralCode(), // legacy fallback
+                customReferralCode: finalCustomCode,
                 referredBy: referredBy,
                 referrals: [],
                 referralBonus: 0,
@@ -1765,18 +1811,18 @@
         }
 
         // ============================================================
-        //  CUSTOM REFERRAL CODE
+        //  CUSTOM REFERRAL CODE (set/change)
         // ============================================================
         async function setCustomReferralCode(userId, newCode) {
             const user = findUserById(userId);
             if (!user) throw new Error('User not found');
-            if (user.customReferralCode) throw new Error('You already have a custom referral code. It cannot be changed.');
-            const existing = state.users.find(u => u.customReferralCode && u.customReferralCode.toUpperCase() === newCode
-                .toUpperCase());
-            if (existing) throw new Error('This referral code is already taken. Please choose another.');
-            if (newCode.length < 3) throw new Error('Referral code must be at least 3 characters.');
-            if (!/^[a-zA-Z0-9]+$/.test(newCode)) throw new Error('Referral code can only contain letters and numbers.');
-            user.customReferralCode = newCode.toUpperCase();
+
+            const code = newCode.toUpperCase().trim();
+            if (code.length < 3) throw new Error('Referral code must be at least 3 characters.');
+            if (!/^[a-zA-Z0-9]+$/.test(code)) throw new Error('Referral code can only contain letters and numbers.');
+            if (isReferralCodeTaken(code, userId)) throw new Error('This referral code is already taken. Please choose another.');
+
+            user.customReferralCode = code;
             await saveAllData();
             return user;
         }
@@ -1799,7 +1845,6 @@
                     url: link,
                 }).catch(() => {});
             } else {
-                // fallback: copy message with link
                 navigator.clipboard.writeText(message).then(() => {
                     showToast('Referral link with message copied to clipboard!', 'success');
                 }).catch(() => {
@@ -1934,7 +1979,7 @@
             return `
             <section class="hero fade-in">
               <h1>Invest in <span class="highlight">Oil &amp; Gas</span> with Confidence</h1>
-              <p>Petroflow by Usman Bello offers premium fixed-amount investment opportunities in the energy sector with guaranteed returns in Naira.</p>
+              <p>Petroflow by Usman Bello offers premium fixed-amount investment opportunities in the energy sector with <strong>high-yield returns</strong> in Naira.</p>
               <div class="support">
                 <i class="fab fa-whatsapp"></i>
                 <span>Support: <a href="https://wa.me/${CONFIG.SUPPORT_PHONE}" target="_blank">${CONFIG.SUPPORT_PHONE}</a></span>
@@ -1960,12 +2005,12 @@
                 <div class="card text-center">
                   <i class="fas fa-chart-simple" style="font-size:36px;color:var(--gold);margin-bottom:10px;"></i>
                   <h3>High Returns</h3>
-                  <p style="color:var(--text-secondary);font-size:14px;">Earn up to 25% returns with our fixed-amount investment plans.</p>
+                  <p style="color:var(--text-secondary);font-size:14px;">Earn up to <strong class="text-gold">120%</strong> returns with our fixed-amount investment plans.</p>
                 </div>
                 <div class="card text-center">
                   <i class="fas fa-users" style="font-size:36px;color:var(--gold);margin-bottom:10px;"></i>
                   <h3>Refer & Earn</h3>
-                  <p style="color:var(--text-secondary);font-size:14px;">Refer friends and earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} bonus on their first deposit.</p>
+                  <p style="color:var(--text-secondary);font-size:14px;">Refer friends and earn <strong class="text-gold">₦${CONFIG.REFERRAL_BONUS_AMOUNT}</strong> bonus on their first deposit.</p>
                 </div>
               </div>
             </section>
@@ -2022,7 +2067,7 @@
         }
 
         // ============================================================
-        //  REGISTER
+        //  REGISTER — with custom referral code field
         // ============================================================
         function renderRegister() {
             return `
@@ -2048,9 +2093,14 @@
                     <input type="password" id="regPassword" placeholder="Min 6 characters" required minlength="6" />
                   </div>
                   <div class="form-group">
-                    <label>Referral Code (optional)</label>
-                    <input type="text" id="regReferral" placeholder="Enter referral code if you have one" />
-                    <span style="font-size:11px;color:var(--text-muted);">Refer and earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} bonus on first deposit!</span>
+                    <label>Your Custom Referral Code <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+                    <input type="text" id="regCustomCode" placeholder="e.g. SVGE10 — min 3 chars, letters & numbers only" />
+                    <span style="font-size:11px;color:var(--text-muted);">Choose a unique code to share with friends. If left blank, we'll generate one for you.</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Referred By (optional)</label>
+                    <input type="text" id="regReferral" placeholder="Enter your referrer's code" />
+                    <span style="font-size:11px;color:var(--text-muted);">If someone referred you, enter their code to earn them a bonus.</span>
                   </div>
                   <button type="submit" class="btn btn-gold btn-block" id="registerBtn">Create Account</button>
                 </form>
@@ -2141,7 +2191,7 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                   <div>
                     <h4 style="font-size:16px;"><i class="fas fa-gift text-gold"></i> Refer & Earn</h4>
-                    <p style="font-size:13px;color:var(--text-muted);">Share your code and earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} when they make their first deposit.</p>
+                    <p style="font-size:13px;color:var(--text-muted);">Share your code and earn <strong class="text-gold">₦${CONFIG.REFERRAL_BONUS_AMOUNT}</strong> when they make their first deposit.</p>
                   </div>
                   <div class="referral-stats">
                     <span>👥 <strong>${referralCount}</strong> referral${referralCount !== 1 ? 's' : ''}</span>
@@ -2180,6 +2230,7 @@
                     ${activeInvestments.map(inv => {
                       const plan = PLANS.find(p => p.id === inv.planId);
                       const progress = Math.min(100, ((Date.now() - new Date(inv.startDate).getTime()) / (new Date(inv.endDate).getTime() - new Date(inv.startDate).getTime())) * 100);
+                      const expectedReturn = inv.amount * (inv.rate / 100);
                       return `
                         <div class="card" style="margin-bottom:12px;">
                           <div class="flex-between">
@@ -2202,7 +2253,10 @@
                             <span>Start: ${formatDate(inv.startDate)}</span>
                             <span>End: ${formatDate(inv.endDate)}</span>
                           </div>
-                          ${inv.returns > 0 ? `<div style="margin-top:6px;font-size:13px;color:var(--gold);">Returns: ${formatCurrency(inv.returns)}</div>` : ''}
+                          <div style="margin-top:6px;font-size:13px;color:var(--gold);">
+                            Est. return: ${formatCurrency(expectedReturn)}
+                            ${inv.returns > 0 ? ` (accrued: ${formatCurrency(inv.returns)})` : ''}
+                          </div>
                         </div>
                       `;
                     }).join('')}
@@ -2248,7 +2302,7 @@
         }
 
         // ============================================================
-        //  PLANS — with back button
+        //  PLANS
         // ============================================================
         function renderPlans() {
             const isLoggedIn = !!state.currentUser;
@@ -2259,7 +2313,7 @@
                 <button class="back-btn" data-view="${backTarget}"><i class="fas fa-arrow-left"></i> Back</button>
                 <h2>Investment Plans</h2>
               </div>
-              <p class="text-muted" style="margin-bottom:30px;">Choose a fixed-amount plan that fits your investment goals</p>
+              <p class="text-muted" style="margin-bottom:30px;">Choose a fixed-amount plan that fits your investment goals. <strong class="text-gold">High-yield returns</strong> designed for growth.</p>
               <div class="grid-3">
                 ${PLANS.map(p => `
                   <div class="plan-card">
@@ -2280,7 +2334,7 @@
         }
 
         // ============================================================
-        //  DEPOSIT — with back button
+        //  DEPOSIT
         // ============================================================
         function renderDeposit() {
             if (!state.currentUser) return renderLogin();
@@ -2338,7 +2392,7 @@
         }
 
         // ============================================================
-        //  WITHDRAW — with back button
+        //  WITHDRAW
         // ============================================================
         function renderWithdraw() {
             if (!state.currentUser) return renderLogin();
@@ -2426,8 +2480,8 @@
                     <span>Rate: <strong class="text-gold">${selectedPlan.rate}%</strong></span>
                     <span>Duration: <strong>${selectedPlan.duration} days</strong></span>
                   </div>
-                  <div style="margin-top:8px;font-size:13px;color:var(--text-muted);">
-                    Est. return: <strong class="text-gold">${formatCurrency(selectedPlan.amount * selectedPlan.rate / 100)}</strong>
+                  <div style="margin-top:8px;font-size:15px;color:var(--text-primary);">
+                    Est. return: <strong class="text-gold" style="font-size:20px;">${formatCurrency(selectedPlan.amount * selectedPlan.rate / 100)}</strong>
                   </div>
                 </div>
 
@@ -2454,7 +2508,7 @@
                     </div>
                     <div class="flex-between">
                       <span>Est. return:</span>
-                      <span class="text-gold" id="investDisplayReturn">${formatCurrency(selectedPlan.amount * selectedPlan.rate / 100)}</span>
+                      <span class="text-gold" id="investDisplayReturn" style="font-weight:700;">${formatCurrency(selectedPlan.amount * selectedPlan.rate / 100)}</span>
                     </div>
                     <div class="flex-between">
                       <span>Duration:</span>
@@ -2475,7 +2529,7 @@
         }
 
         // ============================================================
-        //  REFERRAL
+        //  REFERRAL — with custom code management
         // ============================================================
         function renderReferral() {
             if (!state.currentUser) return renderLogin();
@@ -2495,25 +2549,29 @@
                   <button class="back-btn" data-view="dashboard"><i class="fas fa-arrow-left"></i> Back</button>
                   <h2 style="font-size:20px;margin:0;"><i class="fas fa-users text-gold"></i> Referral Center</h2>
                 </div>
-                <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">Share your code, earn ₦${CONFIG.REFERRAL_BONUS_AMOUNT} when they deposit. You need an active referral to withdraw.</p>
+                <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">Share your custom code and earn <strong class="text-gold">₦${CONFIG.REFERRAL_BONUS_AMOUNT}</strong> when they deposit. You need an active referral to withdraw.</p>
 
                 ${!hasCustomCode ? `
-                  <div style="background:var(--bg-primary);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;">
-                    <h4 style="font-size:15px;margin-bottom:8px;">Set Your Custom Referral Code</h4>
+                  <div style="background:var(--bg-primary);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;border:1px solid var(--gold);">
+                    <h4 style="font-size:15px;margin-bottom:8px;"><i class="fas fa-pen text-gold"></i> Set Your Custom Referral Code</h4>
                     <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Choose a unique code (letters & numbers, min 3 chars).</p>
                     <form id="setReferralCodeForm" style="display:flex;gap:10px;flex-wrap:wrap;">
-                      <input type="text" id="newReferralCode" placeholder="e.g. PETRO123" style="flex:1;min-width:150px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);" />
+                      <input type="text" id="newReferralCode" placeholder="e.g. SVGE10" style="flex:1;min-width:150px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);" />
                       <button type="submit" class="btn btn-gold btn-sm">Set Code</button>
                     </form>
+                    <p style="font-size:11px;color:var(--text-muted);margin-top:6px;">⚠️ Once set, this code cannot be changed.</p>
                   </div>
                 ` : `
-                  <div class="referral-box" style="margin-bottom:16px;">
+                  <div class="referral-box" style="margin-bottom:16px;border-color:var(--gold);">
                     <span class="code">${referralCode}</span>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                       <button class="copy-btn" id="copyReferralBtn"><i class="fas fa-copy"></i> Copy Code</button>
                       <button class="copy-btn" id="copyReferralLinkBtn"><i class="fas fa-link"></i> Copy Link</button>
                       <button class="share-btn" id="shareReferralBtn"><i class="fas fa-share-alt"></i> Share</button>
                     </div>
+                  </div>
+                  <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:12px;">
+                    <i class="fas fa-check-circle" style="color:#27ae60;"></i> Your custom referral code is active.
                   </div>
                 `}
 
@@ -2744,19 +2802,20 @@
                 btn.innerHTML = 'Sign In';
             });
 
-            // Register
+            // Register — with custom code handling
             document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const name = document.getElementById('regName').value.trim();
                 const email = document.getElementById('regEmail').value.trim();
                 const phone = document.getElementById('regPhone').value.trim();
                 const password = document.getElementById('regPassword').value;
-                const referral = document.getElementById('regReferral').value.trim().toUpperCase();
+                const customCode = document.getElementById('regCustomCode').value.trim();
+                const referrerCode = document.getElementById('regReferral').value.trim().toUpperCase();
                 const btn = document.getElementById('registerBtn');
                 btn.disabled = true;
                 btn.innerHTML = '<span class="loader"></span> Creating account...';
                 try {
-                    const user = await registerUser(name, email, phone, password, referral);
+                    const user = await registerUser(name, email, phone, password, customCode, referrerCode);
                     state.currentUser = user;
                     saveSession(user);
                     showToast(`Account created! Welcome ${user.fullName}`, 'success');
@@ -3102,4 +3161,4 @@
         init();
     </script>
 </body>
-</html>
+            </html>
